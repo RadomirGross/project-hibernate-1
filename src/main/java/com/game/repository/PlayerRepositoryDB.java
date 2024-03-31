@@ -10,6 +10,7 @@ import org.hibernate.query.NativeQuery;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.PreDestroy;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -17,7 +18,8 @@ import java.util.Properties;
 @Repository(value = "db")
 public class PlayerRepositoryDB implements IPlayerRepository {
 
-private final SessionFactory sessionFactory;
+    private final SessionFactory sessionFactory;
+
     public PlayerRepositoryDB() {
         Properties properties = new Properties();
         properties.put(Environment.DRIVER, "org.postgresql.Driver");
@@ -28,7 +30,7 @@ private final SessionFactory sessionFactory;
         properties.put(Environment.SHOW_SQL, "true");
         properties.put(Environment.HBM2DDL_AUTO, "update");
 
-        sessionFactory=new Configuration()
+        sessionFactory = new Configuration()
                 .addAnnotatedClass(Player.class)
                 .setProperties(properties)
                 .buildSessionFactory();
@@ -36,10 +38,9 @@ private final SessionFactory sessionFactory;
 
     @Override
     public List<Player> getAll(int pageNumber, int pageSize) {
-        try(Session session= sessionFactory.openSession())
-        {
-            NativeQuery query=session.createNativeQuery("select * from rpg.player ORDER BY id", Player.class);
-            query.setFirstResult(pageNumber*pageSize);
+        try (Session session = sessionFactory.openSession()) {
+            NativeQuery query = session.createNativeQuery("select * from rpg.player ORDER BY id", Player.class);
+            query.setFirstResult(pageNumber * pageSize);
             query.setMaxResults(pageSize);
             return query.getResultList();
         }
@@ -48,19 +49,17 @@ private final SessionFactory sessionFactory;
     @Override
     public int getAllCount() {
 
-try (Session session= sessionFactory.openSession())
-{
-    Query<Long> query=session.createNamedQuery("player_getAllCount", Long.class);
-return Math.toIntExact(query.uniqueResult());
-}
+        try (Session session = sessionFactory.openSession()) {
+            Query<Long> query = session.createNamedQuery("player_getAllCount", Long.class);
+            return Math.toIntExact(query.uniqueResult());
+        }
 
     }
 
     @Override
     public Player save(Player player) {
-        try (Session session= sessionFactory.openSession())
-        {
-            Transaction transaction=session.beginTransaction();
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
             session.save(player);
 
             transaction.commit();
@@ -70,9 +69,8 @@ return Math.toIntExact(query.uniqueResult());
 
     @Override
     public Player update(Player player) {
-        try (Session session= sessionFactory.openSession())
-        {
-            Transaction transaction=session.beginTransaction();
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
             session.merge(player);
 
             transaction.commit();
@@ -82,25 +80,25 @@ return Math.toIntExact(query.uniqueResult());
 
     @Override
     public Optional<Player> findById(long id) {
-        try (Session session= sessionFactory.openSession())
-        { Player player=session.find(Player.class,id);
+        try (Session session = sessionFactory.openSession()) {
+            Player player = session.find(Player.class, id);
             return Optional.of(player);
-    }}
+        }
+    }
 
     @Override
     public void delete(Player player) {
-            try (Session session= sessionFactory.openSession())
-            {
-                Transaction transaction=session.beginTransaction();
-                session.delete(player);
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            session.delete(player);
 
-                transaction.commit();
+            transaction.commit();
 
-            }
+        }
     }
 
-   // @PreDestroy
-   // public void beforeStop() {
-//sessionFactory.close();
-  //  }
+    @PreDestroy
+    public void beforeStop() {
+        sessionFactory.close();
+    }
 }

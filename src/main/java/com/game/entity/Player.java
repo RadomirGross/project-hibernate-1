@@ -5,23 +5,32 @@ import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(schema = "rpg",name = "player")
-@NamedQuery(name="player_getAllCount",query = "select count(p) from Player p")
+@Table(schema = "rpg", name = "player")
+@NamedQuery(name = "player_getAllCount", query = "select count(p) from Player p")
 public class Player {
+
+
+  /*  @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "player_seq")
+    @SequenceGenerator(name = "player_seq", sequenceName = "player_seq", initialValue = 41, allocationSize=1)
+    @Column(nullable = false)
+    private Long id;  // В комментах прочитал, не пробовал*/
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE)
     private Long id;
-@Column(length = 12,nullable = false)
+    @Column(length = 12, nullable = false)
     private String name;
-@Column(length = 30,nullable = false)
+    @Column(length = 30, nullable = false)
     private String title;
-@Enumerated(EnumType.ORDINAL)
-@Column(nullable = false)
+    @Enumerated(EnumType.ORDINAL)
+    @Column(nullable = false)
     private Race race;
-@Enumerated(EnumType.ORDINAL)
-@Column(nullable = false)
+    @Enumerated(EnumType.ORDINAL)
+    @Column(nullable = false)
     private Profession profession;
-@Column(nullable = false)
+    @Column(nullable = false)
     private Date birthday;
     @Column(nullable = false)
     private Boolean banned;
